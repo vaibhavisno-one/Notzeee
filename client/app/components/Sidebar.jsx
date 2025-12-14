@@ -1,20 +1,26 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Plus, Archive, User, Pin, Tag } from "lucide-react";
+import { Plus, Archive, User, Pin, Folder, ChevronDown, ChevronRight } from "lucide-react";
 import { useNotes } from "../context/NotesContext";
 
 export default function Sidebar() {
-    const { notes, createNote, isLoading, isFocusMode, searchQuery } = useNotes();
+    const { notes, notebooks, createNote, isLoading, isFocusMode, searchQuery } = useNotes();
     const pathname = usePathname();
     const router = useRouter();
+    const [expandedNotebooks, setExpandedNotebooks] = useState({});
 
     if (isFocusMode) return null;
 
     const handleCreate = () => {
         const newId = createNote();
         router.push(`/app/note/${newId}`);
+    };
+
+    const toggleNotebook = (id) => {
+        setExpandedNotebooks(prev => ({ ...prev, [id]: !prev[id] }));
     };
 
     if (isLoading) return <aside className="w-[260px] h-full bg-neutral-50 border-r border-neutral-200" />;
@@ -29,8 +35,16 @@ export default function Sidebar() {
         );
     });
 
+    // Grouping Logic
     const pinnedNotes = filteredNotes.filter(n => n.pinned);
-    const recentNotes = filteredNotes.filter(n => !n.pinned).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+    // If not searching, we group by notebook. If searching, we flatten?
+    // Let's keep notebook structure if not searching.
+    const isSearching = searchQuery.length > 0;
+
+    // Notes that are NOT pinned and NOT in a notebook (or if searching, just all matches)
+    // Actually, "Recent" usually implies flat list.
+    // Let's follow plan: Pinned -> Notebooks -> Uncategorized.
+    const uncategorizedNotes = filteredNotes.filter(n => !n.pinned && !n.notebookId).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
 
     const NoteItem = ({ note }) => {
         const isActive = pathname === `/app/note/${note.id}`;
@@ -63,6 +77,37 @@ export default function Sidebar() {
                     </div>
                 )}
             </Link>
+        );
+    };
+
+    const NotebookItem = ({ notebook }) => {
+        const nbNotes = filteredNotes.filter(n => !n.pinned && n.notebookId === notebook.id).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+        if (nbNotes.length === 0 && isSearching) return null; // Hide empty if searching
+
+        const isExpanded = expandedNotebooks[notebook.id] !== false; // Default Open
+
+        return (
+            <div className="flex flex-col gap-0.5">
+                <button
+                    onClick={() => toggleNotebook(notebook.id)}
+                    className="flex items-center gap-2 px-3 py-1.5 text-neutral-500 hover:text-neutral-900 group transition-colors select-none"
+                >
+                    {isExpanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+                    <Folder size={12} className={`text-${notebook.color}-500 fill-${notebook.color}-500/10`} />
+                    <span className="text-xs font-medium uppercase tracking-wide truncate flex-1 text-left">{notebook.name}</span>
+                    <span className="text-[10px] text-neutral-400">{nbNotes.length}</span>
+                </button>
+
+                {isExpanded && (
+                    <div className="pl-3 border-l border-neutral-200/50 ml-4 space-y-0.5">
+                        {nbNotes.length > 0 ? (
+                            nbNotes.map(n => <NoteItem key={n.id} note={n} />)
+                        ) : (
+                            <p className="px-3 py-1.5 text-[10px] text-neutral-400 italic pl-2">Empty</p>
+                        )}
+                    </div>
+                )}
+            </div>
         );
     };
 
@@ -107,12 +152,29 @@ export default function Sidebar() {
                     </section>
                 )}
 
-                {/* Recent Section */}
-                {recentNotes.length > 0 && (
+                {/* Notebooks Section */}
+                {!isSearching && (
+                    <section className="space-y-1">
+                        <div className="flex items-center justify-between px-3 mb-1">
+                            <h3 className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Notebooks</h3>
+                            <button
+                                onClick={() => createNotebook(prompt("Notebook Name:") || "New Notebook")}
+                                className="text-neutral-400 hover:text-neutral-900 transition-colors"
+                                title="New Notebook"
+                            >
+                                <Plus size={10} />
+                            </button>
+                        </div>
+                        {notebooks.map(nb => <NotebookItem key={nb.id} notebook={nb} />)}
+                    </section>
+                )}
+
+                {/* Recent / Uncategorized Section */}
+                {uncategorizedNotes.length > 0 && (
                     <section>
                         <h3 className="px-3 text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-1">Recent</h3>
                         <div className="space-y-0.5">
-                            {recentNotes.map(n => <NoteItem key={n.id} note={n} />)}
+                            {uncategorizedNotes.map(n => <NoteItem key={n.id} note={n} />)}
                         </div>
                     </section>
                 )}

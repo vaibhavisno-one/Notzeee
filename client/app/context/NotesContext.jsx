@@ -6,6 +6,7 @@ const NotesContext = createContext(null);
 
 export function NotesProvider({ children }) {
     const [notes, setNotes] = useState([]);
+    const [notebooks, setNotebooks] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
     // VS Code / App State
@@ -15,18 +16,49 @@ export function NotesProvider({ children }) {
 
     // Load from LocalStorage
     useEffect(() => {
-        const saved = localStorage.getItem("notzeee_notes");
-        if (saved) {
-            setNotes(JSON.parse(saved));
+        const savedNotes = localStorage.getItem("notzeee_notes");
+        const savedNotebooks = localStorage.getItem("notzeee_notebooks");
+
+        if (savedNotes) {
+            setNotes(JSON.parse(savedNotes));
         } else {
             // Default seed data with new fields
             const seed = [
-                { id: "1", title: "Project Ideas", content: "Build a developer notes app...", tags: ["dev", "ideas"], pinned: true, updatedAt: new Date().toISOString() },
-                { id: "2", title: "Deployment Config", content: "Vercel settings...", tags: ["devops"], pinned: false, updatedAt: new Date().toISOString() }
+                {
+                    id: "1",
+                    title: "Project Ideas",
+                    content: "Build a developer notes app...",
+                    tags: ["dev", "ideas"],
+                    pinned: true,
+                    updatedAt: new Date().toISOString(),
+                    notebookId: null,
+                    pageType: 'note',
+                    layout: 'default'
+                },
+                {
+                    id: "2",
+                    title: "Deployment Config",
+                    content: "Vercel settings...",
+                    tags: ["devops"],
+                    pinned: false,
+                    updatedAt: new Date().toISOString(),
+                    notebookId: "nb-2",
+                    pageType: 'task',
+                    layout: 'grid'
+                }
             ];
             setNotes(seed);
-            localStorage.setItem("notzeee_notes", JSON.stringify(seed));
         }
+
+        if (savedNotebooks) {
+            setNotebooks(JSON.parse(savedNotebooks));
+        } else {
+            setNotebooks([
+                { id: "nb-1", name: "Personal", color: "blue" },
+                { id: "nb-2", name: "Projects", color: "orange" }
+            ]);
+        }
+
         setIsLoading(false);
     }, []);
 
@@ -35,6 +67,13 @@ export function NotesProvider({ children }) {
         setNotes(updatedNotes);
         localStorage.setItem("notzeee_notes", JSON.stringify(updatedNotes));
     };
+
+    // Persist notebooks
+    useEffect(() => {
+        if (!isLoading) {
+            localStorage.setItem("notzeee_notebooks", JSON.stringify(notebooks));
+        }
+    }, [notebooks, isLoading]);
 
     const saveNote = (id, newTitle, newContent) => {
         const updated = notes.map((n) =>
@@ -45,18 +84,43 @@ export function NotesProvider({ children }) {
         persistNotes(updated);
     };
 
-    const createNote = () => {
+    const updateNoteSettings = (id, settings) => {
+        const updated = notes.map(n =>
+            n.id === id ? { ...n, ...settings, updatedAt: new Date().toISOString() } : n
+        );
+        persistNotes(updated);
+    };
+
+    const createNote = (notebookId = null) => {
         const newNote = {
             id: Date.now().toString(),
             title: "",
             content: "",
             tags: [],
             pinned: false,
-            updatedAt: new Date().toISOString()
+            updatedAt: new Date().toISOString(),
+            notebookId: notebookId,
+            pageType: 'note',
+            layout: 'default'
         };
         const updated = [newNote, ...notes];
         persistNotes(updated);
         return newNote.id;
+    };
+
+    const createNotebook = (name) => {
+        const newNb = {
+            id: Date.now().toString(),
+            name: name || "New Notebook",
+            color: "neutral"
+        };
+        setNotebooks(prev => [...prev, newNb]);
+    };
+
+    const deleteNotebook = (id) => {
+        setNotebooks(prev => prev.filter(nb => nb.id !== id));
+        const updated = notes.map(n => n.notebookId === id ? { ...n, notebookId: null } : n);
+        persistNotes(updated);
     };
 
     const togglePin = (id) => {
@@ -88,9 +152,13 @@ export function NotesProvider({ children }) {
     return (
         <NotesContext.Provider value={{
             notes,
+            notebooks,
             isLoading,
             saveNote,
+            updateNoteSettings,
             createNote,
+            createNotebook,
+            deleteNotebook,
             togglePin,
             addTag,
             removeTag,
