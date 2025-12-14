@@ -1,10 +1,12 @@
 "use client";
 
 import { useNotes } from "../context/NotesContext";
-import { Clock, CheckCircle, Search, X, PanelLeftClose, PanelLeftOpen, Info, Pin } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import { Clock, CheckCircle, Search, X, PanelLeftClose, PanelLeftOpen, Info, Pin, LogOut } from "lucide-react";
 
 export default function Topbar({ noteId }) {
     const { notes, isLoading, searchQuery, setSearchQuery, isFocusMode, setIsFocusMode, showMetadata, setShowMetadata, togglePin } = useNotes();
+    const { logout } = useAuth();
     const note = notes.find(n => n.id === noteId);
 
     // Simple relative time formatter
@@ -90,6 +92,15 @@ export default function Topbar({ noteId }) {
                         </span>
                     )}
                 </div>
+
+                {/* Logout Button */}
+                <button
+                    onClick={logout}
+                    className="p-1.5 rounded-md text-neutral-400 hover:text-neutral-600 hover:bg-neutral-50 transition-colors ml-2"
+                    title="Logout"
+                >
+                    <LogOut size={16} />
+                </button>
             </div>
         </header>
     );

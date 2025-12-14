@@ -58,7 +58,7 @@ export default function Editor({ noteId }) {
     if (isLoading) {
         return (
             <div className="flex-1 flex flex-col h-full bg-white animate-pulse">
-                <div className="max-w-3xl w-full mx-auto px-16 py-12 flex flex-col gap-6">
+                <div className="max-w-5xl w-full mx-auto px-16 py-12 flex flex-col gap-6">
                     <div className="h-10 bg-neutral-100 rounded w-1/2" />
                     <div className="h-96 bg-neutral-100 rounded w-full" />
                 </div>
@@ -97,7 +97,7 @@ export default function Editor({ noteId }) {
         if (note.layout === 'ruled') {
             return {
                 ...baseStyle,
-                backgroundImage: 'linear-gradient(transparent calc(100% - 1px), #e5e5e5 calc(100% - 1px))',
+                backgroundImage: 'linear-gradient(transparent calc(100% - 1px), #696666ff calc(100% - 1px))',
                 backgroundSize: `100% ${LINE_HEIGHT}`,
                 backgroundPosition: '0 8px'
             };
@@ -105,14 +105,14 @@ export default function Editor({ noteId }) {
         if (note.layout === 'grid') {
             return {
                 ...baseStyle,
-                backgroundImage: 'radial-gradient(#e5e5e5 1px, transparent 1px)',
+                backgroundImage: 'radial-gradient(#696666ff 1px, transparent 1px)',
                 backgroundSize: '1.5rem 1.5rem'
             };
         }
         if (note.layout === 'dotted') {
             return {
                 ...baseStyle,
-                backgroundImage: 'radial-gradient(#d4d4d4 1.5px, transparent 1.5px)',
+                backgroundImage: 'radial-gradient(#696666ff 1.5px, transparent 1.5px)',
                 backgroundSize: '2rem 2rem'
             };
         }
@@ -126,7 +126,7 @@ export default function Editor({ noteId }) {
             {showMetadata && <MetadataPanel note={note} />}
 
             <div
-                className={`w-full mx-auto px-8 py-12 md:px-12 lg:px-16 flex flex-col gap-8 transition-all duration-500 h-full ${isFocusMode ? "max-w-2xl" : "max-w-3xl"}`}
+                className={`w-full mx-auto px-8 py-12 md:px-12 lg:px-16 flex flex-col gap-8 transition-all duration-500 h-full ${isFocusMode ? "max-w-6xl" : "max-w-4xl"}`}
             >
 
                 {/* Title Input */}

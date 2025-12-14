@@ -34,7 +34,7 @@ const googleCallback = [
             });
 
             // Redirect to frontend
-            res.redirect(`${process.env.CLIENT_URL}/dashboard`);
+            res.redirect(`${process.env.CLIENT_URL}/app`);
         } catch (error) {
             console.error('Google callback error:', error);
             res.redirect(`${process.env.CLIENT_URL}/login?error=server_error`);

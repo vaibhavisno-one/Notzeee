@@ -5,7 +5,6 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
         unique: true,
-        index: true,
     },
     email: {
         type: String,
@@ -28,9 +27,5 @@ const userSchema = new mongoose.Schema({
         default: Date.now,
     },
 });
-
-// Indexes for performance
-userSchema.index({ googleId: 1 });
-userSchema.index({ email: 1 });
 
 module.exports = mongoose.model('User', userSchema);
