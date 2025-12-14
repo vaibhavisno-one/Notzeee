@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, Lock, Zap, FileText } from "lucide-react";
+import HomeAppPreview from "./components/HomeAppPreview";
 
 export default function Home() {
   return (
@@ -24,22 +25,7 @@ export default function Home() {
         </section>
 
         {/* App Preview / Visual */}
-        <section className="border border-neutral-200 rounded-lg overflow-hidden shadow-sm bg-neutral-50 aspect-[16/10] relative flex">
-          {/* Abstract Sidebar */}
-          <div className="w-1/4 h-full border-r border-neutral-200 bg-white p-4 flex flex-col gap-2">
-            <div className="h-4 w-20 bg-neutral-100 rounded mb-4" />
-            <div className="h-3 w-full bg-neutral-100 rounded" />
-            <div className="h-3 w-3/4 bg-neutral-100 rounded" />
-            <div className="h-3 w-4/5 bg-neutral-100 rounded" />
-          </div>
-          {/* Abstract Editor */}
-          <div className="flex-1 p-8 flex flex-col gap-4">
-            <div className="h-6 w-1/3 bg-neutral-200 rounded" />
-            <div className="h-3 w-full bg-neutral-100 rounded" />
-            <div className="h-3 w-full bg-neutral-100 rounded" />
-            <div className="h-3 w-2/3 bg-neutral-100 rounded" />
-          </div>
-        </section>
+        <HomeAppPreview />
 
         {/* Features / How it works */}
         <section>
@@ -64,7 +50,7 @@ export default function Home() {
       </main>
 
       <footer className="border-t border-neutral-100 py-12 text-center text-xs text-neutral-400">
-        <p>© {new Date().getFullYear()} Notzeee. Built with Next.js.</p>
+        <p>© {new Date().getFullYear()} Notzeee. Built by vaibhavisno-one <Link href="https://github.com/vaibhavisno-one" target="_blank">GitHub</Link></p>
       </footer>
     </div>
   );
