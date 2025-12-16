@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { getFontClassName, getHighlightColor } from "../utils/editorUtils";
 
 /**
  * FormattedPreview Component
  * 
- * Renders a formatted preview overlay that shows visual formatting
- * (highlights, bold, italic) while the textarea below handles input.
+ * Renders visual formatting overlay above textarea.
+ * Handles: highlights, bold, italic, font styles.
+ * Syncs scroll with textarea.
  */
 export default function FormattedPreview({
     content,
@@ -22,87 +24,97 @@ export default function FormattedPreview({
     useEffect(() => {
         const textarea = textareaRef.current;
         const preview = previewRef.current;
-
         if (!textarea || !preview) return;
 
-        const handleScroll = () => {
+        const syncScroll = () => {
             preview.scrollTop = textarea.scrollTop;
             preview.scrollLeft = textarea.scrollLeft;
         };
 
-        textarea.addEventListener('scroll', handleScroll);
-        return () => textarea.removeEventListener('scroll', handleScroll);
+        textarea.addEventListener('scroll', syncScroll);
+        return () => textarea.removeEventListener('scroll', syncScroll);
     }, [textareaRef]);
 
-    // Render content with highlights
-    const renderFormattedContent = () => {
-        if (!content) return '';
+    // Build className string
+    const className = [
+        'absolute inset-0 overflow-hidden pointer-events-none',
+        'whitespace-pre-wrap break-words text-lg text-neutral-100 leading-[2.5rem]',
+        getFontClassName(currentFont),
+        isBold && 'font-bold',
+        isItalic && 'italic'
+    ].filter(Boolean).join(' ');
 
-        // Sort ranges by start position
-        const sortedRanges = [...highlightRanges].sort((a, b) => a.start - b.start);
+    return (
+        <div ref={previewRef} className={className}>
+            {renderContent(content, highlightRanges)}
+        </div>
+    );
+}
 
-        let result = [];
-        let lastIndex = 0;
+/**
+ * Render content with highlights applied to specific ranges
+ */
+function renderContent(content, highlightRanges) {
+    if (!content) return '';
+    if (highlightRanges.length === 0) return content;
 
-        sortedRanges.forEach((range, idx) => {
-            // Add text before highlight
-            if (range.start > lastIndex) {
-                result.push(
-                    <span key={`text-${idx}`}>
-                        {content.substring(lastIndex, range.start)}
-                    </span>
-                );
-            }
+    // Recalculate positions based on stored text to handle content changes
+    const activeRanges = highlightRanges
+        .map(range => {
+            // Find the current position of the highlighted text
+            const currentIndex = content.indexOf(range.text);
+            if (currentIndex === -1) return null; // Text was deleted
 
-            // Add highlighted text
-            const highlightColors = {
-                'yellow': 'rgba(254, 240, 138, 0.3)',
-                'green': 'rgba(134, 239, 172, 0.3)',
-                'blue': 'rgba(147, 197, 253, 0.3)',
-                'pink': 'rgba(249, 168, 212, 0.3)'
+            return {
+                start: currentIndex,
+                end: currentIndex + range.text.length,
+                color: range.color,
+                text: range.text
             };
+        })
+        .filter(Boolean) // Remove null entries (deleted text)
+        .sort((a, b) => a.start - b.start);
 
-            result.push(
-                <span
-                    key={`highlight-${idx}`}
-                    style={{ backgroundColor: highlightColors[range.color] || highlightColors.yellow }}
-                >
-                    {content.substring(range.start, range.end)}
-                </span>
-            );
+    if (activeRanges.length === 0) return content;
 
-            lastIndex = range.end;
-        });
+    const segments = [];
+    let lastIndex = 0;
 
-        // Add remaining text
-        if (lastIndex < content.length) {
-            result.push(
-                <span key="text-end">
-                    {content.substring(lastIndex)}
+    activeRanges.forEach((range, idx) => {
+        // Text before highlight
+        if (range.start > lastIndex) {
+            segments.push(
+                <span key={`text-${idx}`}>
+                    {content.substring(lastIndex, range.start)}
                 </span>
             );
         }
 
-        return result;
-    };
+        // Highlighted text - marker-style gradient
+        segments.push(
+            <mark
+                key={`highlight-${idx}`}
+                style={{
+                    background: `linear-gradient(transparent 60%, ${getHighlightColor(range.color)} 60%)`,
+                    color: 'inherit',
+                    padding: '0 2px'
+                }}
+            >
+                {content.substring(range.start, range.end)}
+            </mark>
+        );
 
-    // Get font class
-    const getFontClass = () => {
-        if (currentFont === 'handwritten') return 'font-handwritten';
-        if (currentFont === 'monospace') return 'font-mono';
-        return 'font-editorial';
-    };
+        lastIndex = range.end;
+    });
 
-    return (
-        <div
-            ref={previewRef}
-            className={`absolute inset-0 overflow-hidden pointer-events-none whitespace-pre-wrap break-words text-lg text-neutral-100 leading-[2.5rem] ${getFontClass()} ${isBold ? 'font-bold' : ''} ${isItalic ? 'italic' : ''}`}
-            style={{
-                padding: '0',
-                lineHeight: '2.5rem',
-            }}
-        >
-            {renderFormattedContent()}
-        </div>
-    );
+    // Remaining text
+    if (lastIndex < content.length) {
+        segments.push(
+            <span key="text-end">
+                {content.substring(lastIndex)}
+            </span>
+        );
+    }
+
+    return segments;
 }

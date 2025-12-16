@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Bold, Italic, Highlighter, Type } from "lucide-react";
+import { FONTS, HIGHLIGHT_COLORS, hasTextSelection } from "../utils/editorUtils";
 
 export default function ContextToolbar({
     textareaRef,
@@ -11,33 +12,20 @@ export default function ContextToolbar({
     onFontChange,
     isBold,
     isItalic,
-    highlightColor,
+    hasHighlights,
     currentFont
 }) {
-    const fonts = [
-        { value: 'normal', label: 'Normal', className: 'font-editorial' },
-        { value: 'handwritten', label: 'Handwritten', className: 'font-handwritten' },
-        { value: 'monospace', label: 'Monospace', className: 'font-mono' }
-    ];
-
-    const highlightColors = [
-        { value: 'yellow', label: 'Yellow', color: '#fef08a' },
-        { value: 'green', label: 'Green', color: '#86efac' },
-        { value: 'blue', label: 'Blue', color: '#93c5fd' },
-        { value: 'pink', label: 'Pink', color: '#f9a8d4' }
-    ];
-
     const [showFontPicker, setShowFontPicker] = useState(false);
     const [showHighlightPicker, setShowHighlightPicker] = useState(false);
     const [hasSelection, setHasSelection] = useState(false);
 
-    // Check for text selection
+    // Track text selection state
     useEffect(() => {
         const textarea = textareaRef?.current;
         if (!textarea) return;
 
         const updateSelection = () => {
-            setHasSelection(textarea.selectionStart !== textarea.selectionEnd);
+            setHasSelection(hasTextSelection(textarea));
         };
 
         textarea.addEventListener('mouseup', updateSelection);
@@ -51,104 +39,148 @@ export default function ContextToolbar({
         };
     }, [textareaRef]);
 
+    const handleHighlightClick = () => {
+        if (hasSelection) {
+            setShowHighlightPicker(!showHighlightPicker);
+        } else {
+            onHighlightToggle(null);
+        }
+    };
+
+    const handleColorSelect = (color) => {
+        onHighlightToggle(color);
+        setShowHighlightPicker(false);
+    };
+
     return (
         <div
             className="fixed bottom-12 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2"
             onMouseDown={(e) => e.preventDefault()}
         >
-            {/* Font Picker */}
+            {/* Font Picker Dropdown */}
             {showFontPicker && (
-                <div className="flex flex-col gap-1 p-2 bg-neutral-800/95 backdrop-blur shadow-2xl rounded-2xl animate-in zoom-in-95 duration-200 min-w-[160px]">
-                    {fonts.map(({ value, label, className }) => (
-                        <button
-                            key={value}
-                            onMouseDown={() => {
-                                onFontChange(value);
-                                setShowFontPicker(false);
-                            }}
-                            className={`px-4 py-2 text-left rounded-lg transition-colors ${currentFont === value
-                                    ? 'bg-indigo-500/30 text-indigo-200'
-                                    : 'hover:bg-white/10 text-neutral-200'
-                                } ${className}`}
-                        >
-                            {label}
-                        </button>
-                    ))}
-                </div>
+                <FontPicker
+                    fonts={FONTS}
+                    currentFont={currentFont}
+                    onSelect={(value) => {
+                        onFontChange(value);
+                        setShowFontPicker(false);
+                    }}
+                />
             )}
 
             {/* Highlight Color Picker */}
             {showHighlightPicker && hasSelection && (
-                <div className="flex items-center gap-1 p-2 bg-neutral-800/95 backdrop-blur shadow-2xl rounded-full animate-in zoom-in-95 duration-200">
-                    {highlightColors.map(({ value, label, color }) => (
-                        <button
-                            key={value}
-                            onMouseDown={() => {
-                                onHighlightToggle(value);
-                                setShowHighlightPicker(false);
-                            }}
-                            className="w-8 h-8 rounded-full border-2 border-neutral-600 hover:border-neutral-400 transition-colors"
-                            style={{ backgroundColor: color }}
-                            title={label}
-                        >
-                            <span className="sr-only">{label}</span>
-                        </button>
-                    ))}
-                </div>
+                <ColorPicker
+                    colors={HIGHLIGHT_COLORS}
+                    onSelect={handleColorSelect}
+                />
             )}
 
             {/* Main Toolbar */}
             <div className="flex items-center gap-1 p-1.5 bg-neutral-800/95 backdrop-blur shadow-2xl rounded-full text-neutral-50">
-                {/* Bold */}
-                <button
-                    onMouseDown={onBoldToggle}
-                    className={`p-2 rounded-full transition-colors ${isBold ? 'bg-indigo-500/30 text-indigo-200' : 'hover:bg-white/20'
-                        }`}
+                <ToolbarButton
+                    icon={Bold}
+                    onClick={onBoldToggle}
+                    isActive={isBold}
                     title="Bold"
-                >
-                    <Bold size={16} />
-                </button>
+                />
 
-                {/* Italic */}
-                <button
-                    onMouseDown={onItalicToggle}
-                    className={`p-2 rounded-full transition-colors ${isItalic ? 'bg-indigo-500/30 text-indigo-200' : 'hover:bg-white/20'
-                        }`}
+                <ToolbarButton
+                    icon={Italic}
+                    onClick={onItalicToggle}
+                    isActive={isItalic}
                     title="Italic"
-                >
-                    <Italic size={16} />
-                </button>
+                />
 
-                <div className="w-px h-4 bg-white/20 mx-1" />
+                <ToolbarDivider />
 
-                {/* Font Style */}
-                <button
-                    onMouseDown={() => setShowFontPicker(!showFontPicker)}
-                    className={`p-2 rounded-full transition-colors ${showFontPicker ? 'bg-purple-500/30 text-purple-200' : 'hover:bg-purple-500/20 text-purple-200'
-                        }`}
+                <ToolbarButton
+                    icon={Type}
+                    onClick={() => setShowFontPicker(!showFontPicker)}
+                    isActive={showFontPicker}
+                    activeColor="purple"
                     title="Font Style"
-                >
-                    <Type size={16} />
-                </button>
+                />
 
-                <div className="w-px h-4 bg-white/20 mx-1" />
+                <ToolbarDivider />
 
-                {/* Highlight with Color Picker */}
-                <button
-                    onMouseDown={() => {
-                        if (hasSelection) {
-                            setShowHighlightPicker(!showHighlightPicker);
-                        } else {
-                            onHighlightToggle(null);
-                        }
-                    }}
-                    className={`p-2 rounded-full transition-colors ${highlightColor ? 'bg-yellow-500/30 text-yellow-200' : 'hover:bg-yellow-500/20 text-yellow-200'
-                        } ${!hasSelection && !highlightColor ? 'opacity-100' : ''}`}
-                    title={hasSelection ? "Highlight Selection" : "Toggle Highlight"}
-                >
-                    <Highlighter size={16} />
-                </button>
+                <ToolbarButton
+                    icon={Highlighter}
+                    onClick={handleHighlightClick}
+                    isActive={hasHighlights}
+                    activeColor="yellow"
+                    title={hasSelection ? "Highlight Selection" : "Clear Highlights"}
+                />
             </div>
         </div>
     );
+}
+
+// Sub-components for better organization
+
+function FontPicker({ fonts, currentFont, onSelect }) {
+    return (
+        <div className="flex flex-col gap-1 p-2 bg-neutral-800/95 backdrop-blur shadow-2xl rounded-2xl min-w-[160px]">
+            {fonts.map(({ value, label, className }) => (
+                <button
+                    key={value}
+                    onMouseDown={() => onSelect(value)}
+                    className={`px-4 py-2 text-left rounded-lg transition-colors ${currentFont === value
+                            ? 'bg-indigo-500/30 text-indigo-200'
+                            : 'hover:bg-white/10 text-neutral-200'
+                        } ${className}`}
+                >
+                    {label}
+                </button>
+            ))}
+        </div>
+    );
+}
+
+function ColorPicker({ colors, onSelect }) {
+    return (
+        <div className="flex items-center gap-1 p-2 bg-neutral-800/95 backdrop-blur shadow-2xl rounded-full">
+            {colors.map(({ value, label, hex }) => (
+                <button
+                    key={value}
+                    onMouseDown={() => onSelect(value)}
+                    className="w-8 h-8 rounded-full border-2 border-neutral-600 hover:border-neutral-400 transition-colors"
+                    style={{ backgroundColor: hex }}
+                    title={label}
+                >
+                    <span className="sr-only">{label}</span>
+                </button>
+            ))}
+        </div>
+    );
+}
+
+function ToolbarButton({ icon: Icon, onClick, isActive, activeColor = 'indigo', title }) {
+    const activeColors = {
+        indigo: 'bg-indigo-500/30 text-indigo-200',
+        purple: 'bg-purple-500/30 text-purple-200',
+        yellow: 'bg-yellow-500/30 text-yellow-200'
+    };
+
+    const hoverColors = {
+        indigo: 'hover:bg-white/20',
+        purple: 'hover:bg-purple-500/20 text-purple-200',
+        yellow: 'hover:bg-yellow-500/20 text-yellow-200'
+    };
+
+    return (
+        <button
+            onMouseDown={onClick}
+            className={`p-2 rounded-full transition-colors ${isActive ? activeColors[activeColor] : hoverColors[activeColor]
+                }`}
+            title={title}
+        >
+            <Icon size={16} />
+        </button>
+    );
+}
+
+function ToolbarDivider() {
+    return <div className="w-px h-4 bg-white/20 mx-1" />;
 }
