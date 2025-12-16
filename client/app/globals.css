@@ -4,20 +4,49 @@
   --font-utility: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-editorial: var(--font-newsreader);
-  
+
+  /* Dark theme colors - permanent (inverted scale for dark mode) */
   --color-neutral-50: #fafafa;
-  --color-neutral-100: #f5f5f5;
-  --color-neutral-200: #e5e5e5;
-  --color-neutral-300: #d4d4d4;
-  --color-neutral-400: #a3a3a3;
-  --color-neutral-500: #737373;
-  --color-neutral-600: #525252;
-  --color-neutral-700: #404040;
-  --color-neutral-800: #262626;
-  --color-neutral-900: #171717;
+  /* Lightest - for primary text */
+  --color-neutral-100: #e5e5e5;
+  /* Very light - for bright text */
+  --color-neutral-200: #d4d4d4;
+  /* Light - for secondary text */
+  --color-neutral-300: #a3a3a3;
+  /* Medium-light - for muted text */
+  --color-neutral-400: #737373;
+  /* Medium - for borders/icons */
+  --color-neutral-500: #525252;
+  /* Medium-dark - for subtle borders */
+  --color-neutral-600: #404040;
+  /* Dark - for elevated surfaces */
+  --color-neutral-700: #2a2a2a;
+  /* Darker - for cards/surfaces */
+  --color-neutral-800: #202020;
+  /* Very dark - for sidebar/topbar */
+  --color-neutral-900: #1a1a1a;
+  /* Darkest - for page background */
 }
 
 body {
   font-family: var(--font-utility);
 }
 
+/* Handwritten font style */
+.font-handwritten {
+  font-family: 'Brush Script MT', 'Segoe Script', cursive;
+  font-size: 1.125rem;
+  /* Slightly larger for readability */
+}
+
+/* Textarea selection */
+textarea::selection {
+  background-color: rgba(99, 102, 241, 0.3);
+  /* Indigo selection */
+  color: inherit;
+}
+
+textarea::-moz-selection {
+  background-color: rgba(99, 102, 241, 0.3);
+  color: inherit;
+}

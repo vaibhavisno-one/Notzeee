@@ -23,7 +23,7 @@ export default function Sidebar() {
         setExpandedNotebooks(prev => ({ ...prev, [id]: !prev[id] }));
     };
 
-    if (isLoading) return <aside className="w-[260px] h-full bg-neutral-50 border-r border-neutral-200" />;
+    if (isLoading) return <aside className="w-[260px] h-full bg-neutral-800 border-r border-neutral-600" />;
 
     // Filter notes based on search query
     const filteredNotes = notes.filter(n => {
@@ -52,27 +52,27 @@ export default function Sidebar() {
             <Link
                 href={`/app/note/${note.id}`}
                 className={`group flex flex-col gap-1 px-3 py-2 rounded-md transition-all ${isActive
-                    ? "bg-white text-neutral-900 shadow-sm ring-1 ring-neutral-200"
-                    : "text-neutral-600 hover:bg-neutral-200/50 hover:text-neutral-900"
+                    ? "bg-neutral-700 text-neutral-50 shadow-sm ring-1 ring-neutral-600"
+                    : "text-neutral-300 hover:bg-neutral-700/50 hover:text-neutral-50"
                     }`}
             >
                 <div className="flex items-center justify-between gap-2">
-                    <span className={`font-medium truncate text-sm ${!note.title && "text-neutral-400 italic"}`}>
+                    <span className={`font-medium truncate text-sm ${!note.title && "text-neutral-500 italic"}`}>
                         {note.title || "Untitled Note"}
                     </span>
-                    {note.pinned && <Pin size={10} className="text-neutral-400 shrink-0 fill-neutral-400/20" />}
+                    {note.pinned && <Pin size={10} className="text-neutral-500 shrink-0 fill-neutral-500/20" />}
                 </div>
 
                 {/* Visual Tags */}
                 {note.tags && note.tags.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-0.5">
                         {note.tags.slice(0, 3).map(tag => (
-                            <span key={tag} className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] bg-neutral-100 text-neutral-500 font-medium group-hover:bg-neutral-200/80 transition-colors">
+                            <span key={tag} className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] bg-neutral-700 text-neutral-300 font-medium group-hover:bg-neutral-600/80 transition-colors">
                                 <span className="mr-0.5 opacity-50">#</span>{tag}
                             </span>
                         ))}
                         {note.tags.length > 3 && (
-                            <span className="text-[10px] text-neutral-400">+{note.tags.length - 3}</span>
+                            <span className="text-[10px] text-neutral-500">+{note.tags.length - 3}</span>
                         )}
                     </div>
                 )}
@@ -90,20 +90,20 @@ export default function Sidebar() {
             <div className="flex flex-col gap-0.5">
                 <button
                     onClick={() => toggleNotebook(notebook.id)}
-                    className="flex items-center gap-2 px-3 py-1.5 text-neutral-500 hover:text-neutral-900 group transition-colors select-none"
+                    className="flex items-center gap-2 px-3 py-1.5 text-neutral-300 hover:text-neutral-50 group transition-colors select-none"
                 >
                     {isExpanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
                     <Folder size={12} className={`text-${notebook.color}-500 fill-${notebook.color}-500/10`} />
                     <span className="text-xs font-medium uppercase tracking-wide truncate flex-1 text-left">{notebook.name}</span>
-                    <span className="text-[10px] text-neutral-400">{nbNotes.length}</span>
+                    <span className="text-[10px] text-neutral-500">{nbNotes.length}</span>
                 </button>
 
                 {isExpanded && (
-                    <div className="pl-3 border-l border-neutral-200/50 ml-4 space-y-0.5">
+                    <div className="pl-3 border-l border-neutral-600/50 ml-4 space-y-0.5">
                         {nbNotes.length > 0 ? (
                             nbNotes.map(n => <NoteItem key={n.id} note={n} />)
                         ) : (
-                            <p className="px-3 py-1.5 text-[10px] text-neutral-400 italic pl-2">Empty</p>
+                            <p className="px-3 py-1.5 text-[10px] text-neutral-500 italic pl-2">Empty</p>
                         )}
                     </div>
                 )}
@@ -112,18 +112,18 @@ export default function Sidebar() {
     };
 
     return (
-        <aside className="w-[260px] h-full flex flex-col border-r border-neutral-200 bg-neutral-50 text-neutral-900 font-utility text-sm shrink-0 transition-all duration-300">
+        <aside className="w-[260px] h-full flex flex-col border-r border-neutral-600 bg-neutral-800 text-neutral-50 font-utility text-sm shrink-0 transition-all duration-300">
             {/* Header */}
-            <div className="p-4 border-b border-neutral-200/50 flex flex-col gap-4">
-                <div className="flex items-center gap-2 px-1 text-neutral-500">
-                    <div className="w-5 h-5 rounded-full bg-neutral-200 flex items-center justify-center">
-                        <User size={12} className="text-neutral-600" />
+            <div className="p-4 border-b border-neutral-600/50 flex flex-col gap-4">
+                <div className="flex items-center gap-2 px-1 text-neutral-300">
+                    <div className="w-5 h-5 rounded-full bg-neutral-600 flex items-center justify-center">
+                        <User size={12} className="text-neutral-300 text-neutral-300" />
                     </div>
                     <span className="font-medium text-xs tracking-tight">Vaibhav's Notes</span>
                 </div>
                 <button
                     onClick={handleCreate}
-                    className="w-full flex items-center justify-center gap-2 bg-white border border-neutral-200 shadow-sm px-3 py-1.5 rounded-md text-neutral-900 hover:bg-neutral-50 hover:border-neutral-300 transition-all font-medium text-xs"
+                    className="w-full flex items-center justify-center gap-2 bg-neutral-700 border border-neutral-600 shadow-sm px-3 py-1.5 rounded-md text-neutral-50 hover:bg-neutral-600 hover:border-neutral-400 transition-all font-medium text-xs"
                 >
                     <Plus size={14} />
                     New Note
@@ -136,7 +136,7 @@ export default function Sidebar() {
                 {/* Empty State / No Results */}
                 {filteredNotes.length === 0 && (
                     <div className="px-4 py-8 text-center">
-                        <p className="text-xs text-neutral-400">
+                        <p className="text-xs text-neutral-500">
                             {searchQuery ? "No matching notes." : "No notes yet."}
                         </p>
                     </div>
@@ -145,7 +145,7 @@ export default function Sidebar() {
                 {/* Pinned Section */}
                 {pinnedNotes.length > 0 && (
                     <section>
-                        <h3 className="px-3 text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-1">Pinned</h3>
+                        <h3 className="px-3 text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-1">Pinned</h3>
                         <div className="space-y-0.5">
                             {pinnedNotes.map(n => <NoteItem key={n.id} note={n} />)}
                         </div>
@@ -156,10 +156,10 @@ export default function Sidebar() {
                 {!isSearching && (
                     <section className="space-y-1">
                         <div className="flex items-center justify-between px-3 mb-1">
-                            <h3 className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Notebooks</h3>
+                            <h3 className="text-[10px] font-bold text-neutral-400 text-neutral-500 uppercase tracking-widest">Notebooks</h3>
                             <button
                                 onClick={() => createNotebook(prompt("Notebook Name:") || "New Notebook")}
-                                className="text-neutral-400 hover:text-neutral-900 transition-colors"
+                                className="text-neutral-500 hover:text-neutral-50 transition-colors"
                                 title="New Notebook"
                             >
                                 <Plus size={10} />
@@ -172,7 +172,7 @@ export default function Sidebar() {
                 {/* Recent / Uncategorized Section */}
                 {uncategorizedNotes.length > 0 && (
                     <section>
-                        <h3 className="px-3 text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-1">Recent</h3>
+                        <h3 className="px-3 text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-1">Recent</h3>
                         <div className="space-y-0.5">
                             {uncategorizedNotes.map(n => <NoteItem key={n.id} note={n} />)}
                         </div>
@@ -181,8 +181,8 @@ export default function Sidebar() {
             </div>
 
             {/* Footer */}
-            <div className="p-3 border-t border-neutral-200/50">
-                <Link href="/app/archive" className="flex items-center gap-2 text-neutral-500 hover:text-neutral-900 px-2 py-1.5 transition-colors rounded-md hover:bg-neutral-200/50">
+            <div className="p-3 border-t border-neutral-600/50">
+                <Link href="/app/archive" className="flex items-center gap-2 text-neutral-300 hover:text-neutral-50 px-2 py-1.5 transition-colors rounded-md hover:bg-neutral-700/50">
                     <Archive size={14} />
                     <span className="text-xs font-medium">Archive</span>
                 </Link>

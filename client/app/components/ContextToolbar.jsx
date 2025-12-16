@@ -1,67 +1,154 @@
 "use client";
 
-import { Bold, Italic, Code, Heading1, Heading2, Quote, Minus, Highlighter, Palette } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Bold, Italic, Highlighter, Type } from "lucide-react";
 
-export default function ContextToolbar({ textareaRef, content, setContent, isVisible, onClose }) {
+export default function ContextToolbar({
+    textareaRef,
+    onBoldToggle,
+    onItalicToggle,
+    onHighlightToggle,
+    onFontChange,
+    isBold,
+    isItalic,
+    highlightColor,
+    currentFont
+}) {
+    const fonts = [
+        { value: 'normal', label: 'Normal', className: 'font-editorial' },
+        { value: 'handwritten', label: 'Handwritten', className: 'font-handwritten' },
+        { value: 'monospace', label: 'Monospace', className: 'font-mono' }
+    ];
 
-    const insertFormat = (prefix, suffix = "") => {
-        const textarea = textareaRef.current;
+    const highlightColors = [
+        { value: 'yellow', label: 'Yellow', color: '#fef08a' },
+        { value: 'green', label: 'Green', color: '#86efac' },
+        { value: 'blue', label: 'Blue', color: '#93c5fd' },
+        { value: 'pink', label: 'Pink', color: '#f9a8d4' }
+    ];
+
+    const [showFontPicker, setShowFontPicker] = useState(false);
+    const [showHighlightPicker, setShowHighlightPicker] = useState(false);
+    const [hasSelection, setHasSelection] = useState(false);
+
+    // Check for text selection
+    useEffect(() => {
+        const textarea = textareaRef?.current;
         if (!textarea) return;
 
-        const start = textarea.selectionStart;
-        const end = textarea.selectionEnd;
-        const text = textarea.value;
-        const selectedText = text.substring(start, end);
+        const updateSelection = () => {
+            setHasSelection(textarea.selectionStart !== textarea.selectionEnd);
+        };
 
-        const newText = text.substring(0, start) + prefix + selectedText + suffix + text.substring(end);
+        textarea.addEventListener('mouseup', updateSelection);
+        textarea.addEventListener('keyup', updateSelection);
+        textarea.addEventListener('select', updateSelection);
 
-        setContent(newText);
-        // Keep toolbar open or close? User prefers "Disappears on blur".
-        // Let's keep it open to allow multiple edits, OR close.
-        // If we want to allow Bold + Italic, we should keep it open.
-        // But onSelect in Editor might re-trigger if selection persists.
-        // Let's rely on Editor's onSelect to show it again if needed.
-        // For now, doing nothing with onClose here allows it to stay if selection remains?
-        // Actually, setContent updates value, which might shift selection to end of inserted text in some browsers, or keep it.
-        // If selection is lost, Editor hides it.
-        // Let's just focus the textarea again to be safe?
-        textarea.focus();
-    };
-
-    if (!isVisible) return null;
+        return () => {
+            textarea.removeEventListener('mouseup', updateSelection);
+            textarea.removeEventListener('keyup', updateSelection);
+            textarea.removeEventListener('select', updateSelection);
+        };
+    }, [textareaRef]);
 
     return (
         <div
-            className="fixed bottom-12 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1 p-1.5 bg-neutral-900/95 backdrop-blur shadow-2xl rounded-full text-white animate-in zoom-in-95 slide-in-from-bottom-2 duration-200"
-            onMouseDown={(e) => e.preventDefault()} // Prevent toolbar click from blurring editor
+            className="fixed bottom-12 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2"
+            onMouseDown={(e) => e.preventDefault()}
         >
-            <button onMouseDown={() => insertFormat("**", "**")} className="p-2 hover:bg-white/20 rounded-full transition-colors" title="Bold">
-                <Bold size={16} />
-            </button>
-            <button onMouseDown={() => insertFormat("*", "*")} className="p-2 hover:bg-white/20 rounded-full transition-colors" title="Italic">
-                <Italic size={16} />
-            </button>
-            <button onMouseDown={() => insertFormat("`", "`")} className="p-2 hover:bg-white/20 rounded-full transition-colors" title="Code">
-                <Code size={16} />
-            </button>
+            {/* Font Picker */}
+            {showFontPicker && (
+                <div className="flex flex-col gap-1 p-2 bg-neutral-800/95 backdrop-blur shadow-2xl rounded-2xl animate-in zoom-in-95 duration-200 min-w-[160px]">
+                    {fonts.map(({ value, label, className }) => (
+                        <button
+                            key={value}
+                            onMouseDown={() => {
+                                onFontChange(value);
+                                setShowFontPicker(false);
+                            }}
+                            className={`px-4 py-2 text-left rounded-lg transition-colors ${currentFont === value
+                                    ? 'bg-indigo-500/30 text-indigo-200'
+                                    : 'hover:bg-white/10 text-neutral-200'
+                                } ${className}`}
+                        >
+                            {label}
+                        </button>
+                    ))}
+                </div>
+            )}
 
-            <div className="w-px h-4 bg-white/20 mx-1" />
+            {/* Highlight Color Picker */}
+            {showHighlightPicker && hasSelection && (
+                <div className="flex items-center gap-1 p-2 bg-neutral-800/95 backdrop-blur shadow-2xl rounded-full animate-in zoom-in-95 duration-200">
+                    {highlightColors.map(({ value, label, color }) => (
+                        <button
+                            key={value}
+                            onMouseDown={() => {
+                                onHighlightToggle(value);
+                                setShowHighlightPicker(false);
+                            }}
+                            className="w-8 h-8 rounded-full border-2 border-neutral-600 hover:border-neutral-400 transition-colors"
+                            style={{ backgroundColor: color }}
+                            title={label}
+                        >
+                            <span className="sr-only">{label}</span>
+                        </button>
+                    ))}
+                </div>
+            )}
 
-            <button onMouseDown={() => insertFormat("==", "==")} className="p-2 hover:bg-yellow-500/20 text-yellow-200 rounded-full transition-colors" title="Highlight">
-                <Highlighter size={16} />
-            </button>
-            <button onMouseDown={() => insertFormat('<span style="color:#ef4444">', '</span>')} className="p-2 hover:bg-red-500/20 text-red-300 rounded-full transition-colors" title="Red Text">
-                <Palette size={16} />
-            </button>
+            {/* Main Toolbar */}
+            <div className="flex items-center gap-1 p-1.5 bg-neutral-800/95 backdrop-blur shadow-2xl rounded-full text-neutral-50">
+                {/* Bold */}
+                <button
+                    onMouseDown={onBoldToggle}
+                    className={`p-2 rounded-full transition-colors ${isBold ? 'bg-indigo-500/30 text-indigo-200' : 'hover:bg-white/20'
+                        }`}
+                    title="Bold"
+                >
+                    <Bold size={16} />
+                </button>
 
-            <div className="w-px h-4 bg-white/20 mx-1" />
+                {/* Italic */}
+                <button
+                    onMouseDown={onItalicToggle}
+                    className={`p-2 rounded-full transition-colors ${isItalic ? 'bg-indigo-500/30 text-indigo-200' : 'hover:bg-white/20'
+                        }`}
+                    title="Italic"
+                >
+                    <Italic size={16} />
+                </button>
 
-            <button onMouseDown={() => insertFormat("\n# ")} className="p-2 hover:bg-white/20 rounded-full transition-colors" title="Heading 1">
-                <Heading1 size={16} />
-            </button>
-            <button onMouseDown={() => insertFormat("\n> ")} className="p-2 hover:bg-white/20 rounded-full transition-colors" title="Quote">
-                <Quote size={16} />
-            </button>
+                <div className="w-px h-4 bg-white/20 mx-1" />
+
+                {/* Font Style */}
+                <button
+                    onMouseDown={() => setShowFontPicker(!showFontPicker)}
+                    className={`p-2 rounded-full transition-colors ${showFontPicker ? 'bg-purple-500/30 text-purple-200' : 'hover:bg-purple-500/20 text-purple-200'
+                        }`}
+                    title="Font Style"
+                >
+                    <Type size={16} />
+                </button>
+
+                <div className="w-px h-4 bg-white/20 mx-1" />
+
+                {/* Highlight with Color Picker */}
+                <button
+                    onMouseDown={() => {
+                        if (hasSelection) {
+                            setShowHighlightPicker(!showHighlightPicker);
+                        } else {
+                            onHighlightToggle(null);
+                        }
+                    }}
+                    className={`p-2 rounded-full transition-colors ${highlightColor ? 'bg-yellow-500/30 text-yellow-200' : 'hover:bg-yellow-500/20 text-yellow-200'
+                        } ${!hasSelection && !highlightColor ? 'opacity-100' : ''}`}
+                    title={hasSelection ? "Highlight Selection" : "Toggle Highlight"}
+                >
+                    <Highlighter size={16} />
+                </button>
+            </div>
         </div>
     );
 }

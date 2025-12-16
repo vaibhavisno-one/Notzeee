@@ -13,20 +13,19 @@ export default function AuthPage() {
     const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
     const handleSignIn = () => {
-        // Redirect to backend Google OAuth endpoint
         window.location.href = `${API_URL}/auth/google`;
     };
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-neutral-50 px-6">
-            <div className="w-full max-w-sm bg-white border border-neutral-200 rounded-lg p-8 shadow-sm">
+        <div className="flex min-h-screen items-center justify-center bg-neutral-900 px-6">
+            <div className="w-full max-w-sm bg-neutral-800 border border-neutral-600 rounded-lg p-8 shadow-sm">
                 <div className="mb-8">
-                    <Link href="/" className="inline-block text-xl font-bold font-editorial text-neutral-900 mb-2">Notzeee</Link>
-                    <h2 className="text-lg font-medium text-neutral-700">Welcome back</h2>
+                    <Link href="/" className="inline-block text-xl font-bold font-editorial text-neutral-50 mb-2">Notzeee</Link>
+                    <h2 className="text-lg font-medium text-neutral-200">Welcome back</h2>
                 </div>
 
                 {error && (
-                    <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded text-sm text-red-600 flex items-center gap-2">
+                    <div className="mb-4 p-3 bg-red-900/20 border border-red-800/30 rounded text-sm text-red-400 flex items-center gap-2">
                         <AlertCircle size={16} />
                         <span>
                             {error === "auth_failed"
@@ -38,7 +37,7 @@ export default function AuthPage() {
 
                 <button
                     onClick={handleSignIn}
-                    className="w-full bg-white border border-neutral-200 text-neutral-900 font-medium py-2.5 px-4 rounded-md hover:bg-neutral-50 transition-colors flex items-center justify-center gap-3 shadow-sm"
+                    className="w-full bg-neutral-700 border border-neutral-600 text-neutral-50 font-medium py-2.5 px-4 rounded-md hover:bg-neutral-600 transition-colors flex items-center justify-center gap-3 shadow-sm"
                 >
                     {/* Google Icon SVG */}
                     <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -62,8 +61,8 @@ export default function AuthPage() {
                     <span>Continue with Google</span>
                 </button>
 
-                <p className="mt-8 text-center text-xs text-neutral-400">
-                    By clicking continue, you agree to our <span className="underline cursor-pointer hover:text-neutral-600">Terms</span> and <span className="underline cursor-pointer hover:text-neutral-600">Privacy Policy</span>.
+                <p className="mt-8 text-center text-xs text-neutral-500">
+                    By clicking continue, you agree to our <span className="underline cursor-pointer hover:text-neutral-300">Terms</span> and <span className="underline cursor-pointer hover:text-neutral-300">Privacy Policy</span>.
                 </p>
 
             </div>
