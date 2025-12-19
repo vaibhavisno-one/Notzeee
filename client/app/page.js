@@ -16,10 +16,10 @@ export default function Home() {
             Fast, private, and distraction-free. Built for clarity, speed, and focus.
           </p>
           <Link
-            href="/auth"
+            href="/app"
             className="inline-flex items-center gap-2 bg-neutral-100 text-neutral-900 px-5 py-2.5 rounded-md font-medium hover:bg-neutral-200 transition-colors shadow-sm"
           >
-            <span>Continue with Google</span>
+            <span>Start Writing</span>
             <ArrowRight size={16} />
           </Link>
         </section>
@@ -31,9 +31,9 @@ export default function Home() {
           <h2 className="text-sm font-medium text-neutral-400 mb-8 uppercase tracking-wider">How it works</h2>
           <div className="grid gap-8 md:grid-cols-3">
             {[
-              { icon: Lock, title: "Sign in", desc: "Google Auth only. Secure by default." },
+              { icon: Lock, title: "Private", desc: "Your notes stay on your device." },
               { icon: FileText, title: "Write", desc: "Markdown-ready rich text editor." },
-              { icon: Zap, title: "Save", desc: "Local-first speed, cloud persistence." },
+              { icon: Zap, title: "Save", desc: "Local-first speed, instant persistence." },
             ].map((f, i) => (
               <div key={i} className="flex flex-col gap-3">
                 <div className="w-8 h-8 flex items-center justify-center rounded-full bg-neutral-700 text-neutral-300">

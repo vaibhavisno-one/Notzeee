@@ -80,7 +80,7 @@ export default function Editor({ noteId }) {
         <div className={`flex-1 flex flex-col h-full relative ${getPageBackgroundClass(note.pageType)}`}>
             {showMetadata && <MetadataPanel note={note} />}
 
-            <div className="w-full mx-auto px-8 py-12 md:px-16 lg:px-24 flex flex-col gap-8 h-full max-w-6xl">
+            <div className="w-full mx-auto px-6 py-8 md:px-12 lg:px-16 flex flex-col gap-8 h-full max-w-7xl">
                 {/* Title */}
                 <TitleInput
                     value={title}
@@ -89,7 +89,7 @@ export default function Editor({ noteId }) {
                 />
 
                 {/* Editor Area */}
-                <div className="relative flex-1 w-full">
+                <div className="relative flex-1 w-full flex flex-col">
                     <FormattedPreview
                         content={content}
                         textareaRef={textareaRef}

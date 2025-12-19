@@ -119,7 +119,7 @@ export default function Sidebar() {
                     <div className="w-5 h-5 rounded-full bg-neutral-600 flex items-center justify-center">
                         <User size={12} className="text-neutral-300 text-neutral-300" />
                     </div>
-                    <span className="font-medium text-xs tracking-tight">Vaibhav's Notes</span>
+                    <span className="font-medium text-xs tracking-tight">My Notebook</span>
                 </div>
                 <button
                     onClick={handleCreate}
