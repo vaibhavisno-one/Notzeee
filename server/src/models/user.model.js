@@ -31,7 +31,7 @@ const userSchema = new Schema({
     isStudent:{
         type:Boolean,
         default:true,
-        required:true,
+        // required:true,
     },
     password:{
         type:String,
