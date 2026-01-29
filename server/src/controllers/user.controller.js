@@ -8,22 +8,44 @@ import jwt from "jsonwebtoken"
 
 //token generation
 
+// const generateAccessAndRefreshToken = async (userId) => {
+//     try {
+//         const user = await User.findById(userId)
+
+//         const accessToken = user.generateAccessToken()
+//         const refreshToken = user.generateRefreshToken()
+
+//         user.refreshToken = refreshToken
+//         await user.save({ validateBeforeSave: false })
+
+//         return { accessToken, refreshToken }
+
+//     } catch (error) {
+//         throw new ApiError(500, "Something went wrong while generating access and refresh token")
+//     }
+// }
+
+
 const generateAccessAndRefreshToken = async (userId) => {
     try {
-        const user = await User.findById(userId)
+        console.log("TOKEN GEN USER ID:", userId);
 
-        const accessToken = user.generateAccessToken()
-        const refreshToken = user.generateRefeshToken()
+        const user = await User.findById(userId);
+        console.log("TOKEN GEN USER:", user);
 
-        user.refreshToken = refreshToken
-        await user.save({ validateBeforeSave: false })
+        const accessToken = user.generateAccessToken();
+        const refreshToken = user.generateRefreshToken();
 
-        return { accessToken, refreshToken }
+        user.refreshToken = refreshToken;
+        await user.save({ validateBeforeSave: false });
 
+        return { accessToken, refreshToken };
     } catch (error) {
-        throw new ApiError(500, "Something went wrong while generating access and refresh token")
+        console.error("REAL TOKEN ERROR 👇");
+        console.error(error);
+        throw error; // IMPORTANT: rethrow original error
     }
-}
+};
 
 
 //register Logic
@@ -71,14 +93,15 @@ const registerUser = asyncHandler(async (req, res) => {
 
 const loginUser = asyncHandler(async (req, res) => {
 
-    const { username, email, passaword } = req.body;
+    const { username, email, password } = req.body;
 
-    if (!email || !username || !password) {
-        throw new ApiError(400, "All fields are required")
+    if ((!email && !username) || !password) {
+        throw new ApiError(400, "Email or username and password are required")
     }
 
-
-    const user = await User.findOne(email);
+    const user = await User.findOne({
+        $or: [{ email }, { username }]
+    });
 
 
     if (!user) {
@@ -86,7 +109,7 @@ const loginUser = asyncHandler(async (req, res) => {
     }
 
 
-    const isMatch = user.isPasswordCorrect(password);
+    const isMatch = await user.isPasswordCorrect(password);
 
     if (!isMatch) {
         throw new ApiError(400, "The password is incorrect")
@@ -127,7 +150,7 @@ const loginUser = asyncHandler(async (req, res) => {
 
 const loggedOutUser = asyncHandler(async (req, res) => {
 
-    await User.fingByIdAndUpdate(
+    await User.findByIdAndUpdate(
         req.user._id,
         {
             $unset: {
@@ -182,7 +205,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
             throw new ApiError(401, "Invalid Access Token")
         }
 
-        if (token == user?.refreshToken) {
+        if (token !== user?.refreshToken) {
             throw new ApiError(401, "Invalid Access Token")
         }
 
@@ -216,4 +239,4 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 
 
 
-export { registerUser, loginUser, loggedOutUser }
+export { registerUser, loginUser, loggedOutUser, refreshAccessToken }
