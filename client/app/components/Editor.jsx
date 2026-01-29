@@ -21,13 +21,13 @@ export default function Editor({ noteId }) {
     const [currentFont, setCurrentFont] = useState('normal');
     const [highlightRanges, setHighlightRanges] = useState([]);
 
-    const note = notes.find((n) => n.id === noteId);
+    const note = notes.find((n) => n._id === noteId);
 
     // Load note content
     useEffect(() => {
         if (isLoading || !note) return;
-        setTitle(note.title);
-        setContent(note.content);
+        setTitle(note.title || "");
+        setContent(note.content || "");
     }, [noteId, isLoading, note]);
 
     // Event handlers

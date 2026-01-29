@@ -1,12 +1,14 @@
 "use client";
 
 import { useNotes } from "../context/NotesContext";
+import { useAuth } from "../context/AuthContext";
 
 import { Clock, CheckCircle, Search, X, PanelLeftClose, PanelLeftOpen, Info, LogOut } from "lucide-react";
 
 export default function Topbar({ noteId }) {
     const { notes, isLoading, searchQuery, setSearchQuery, isFocusMode, setIsFocusMode, showMetadata, setShowMetadata } = useNotes();
-    const note = notes.find(n => n.id === noteId);
+    const { logout } = useAuth();
+    const note = notes.find(n => n._id === noteId);
 
     const timeAgo = (dateStr) => {
         if (!dateStr) return "Just now";
@@ -74,6 +76,13 @@ export default function Topbar({ noteId }) {
                         title="Toggle Focus Mode"
                     >
                         {isFocusMode ? <PanelLeftOpen size={16} /> : <PanelLeftClose size={16} />}
+                    </button>
+                    <button
+                        onClick={logout}
+                        className="p-1.5 rounded-md text-neutral-500 hover:text-neutral-300 hover:bg-neutral-700 transition-colors"
+                        title="Logout"
+                    >
+                        <LogOut size={16} />
                     </button>
                 </div>
 

@@ -8,9 +8,14 @@ import cookieParser from "cookie-parser"
 const app = express()
 
 app.use(cors({
-    origin: process.env.CORS_ORIGIN,
+    origin: process.env.CORS_ORIGIN ,
     credentials: true
 }))
+
+if (!process.env.CORS_ORIGIN) {
+  throw new Error("CORS_ORIGIN is not defined");
+}
+
 
 app.use(express.json({ limit: "16kb" }))
 

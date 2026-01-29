@@ -4,6 +4,22 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 
+const getAllUserNotes = asyncHandler(async (req, res) => {
+    const notes = await Note.find({
+        $or: [
+            { owner: req.user._id },
+            { "collaborators.user": req.user._id }
+        ]
+    })
+        .populate("owner", "username email fullName")
+        .populate("collaborators.user", "username email fullName")
+        .sort({ updatedAt: -1 });
+
+    return res.status(200).json(
+        new ApiResponse(200, notes, "Notes fetched successfully")
+    );
+});
+
 const createNote = asyncHandler(async (req, res) => {
     const { title, content } = req.body;
 
@@ -143,4 +159,5 @@ const removeCollaborator = asyncHandler(async (req, res) => {
     );
 });
 
-export { createNote, getNoteById, updateNote, deleteNote, addCollaborator, removeCollaborator };
+export { getAllUserNotes, createNote, getNoteById, updateNote, deleteNote, addCollaborator, removeCollaborator };
+

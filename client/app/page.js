@@ -16,7 +16,7 @@ export default function Home() {
             Fast, private, and distraction-free. Built for clarity, speed, and focus.
           </p>
           <Link
-            href="/app"
+            href="/login"
             className="inline-flex items-center gap-2 bg-neutral-100 text-neutral-900 px-5 py-2.5 rounded-md font-medium hover:bg-neutral-200 transition-colors shadow-sm"
           >
             <span>Start Writing</span>

@@ -1,10 +1,11 @@
 import { Router } from "express";
-import { createNote, getNoteById, updateNote, deleteNote, addCollaborator, removeCollaborator } from "../controllers/note.controller.js";
+import { getAllUserNotes, createNote, getNoteById, updateNote, deleteNote, addCollaborator, removeCollaborator } from "../controllers/note.controller.js";
 import { verifyJWT } from "../middleware/auth.middleware.js";
 import { loadNote, canReadNote, canEditNote, isNoteOwner } from "../middleware/note.middleware.js";
 
 const router = Router();
 
+router.route("/").get(verifyJWT, getAllUserNotes);
 router.route("/").post(verifyJWT, createNote);
 router.route("/:noteId").get(verifyJWT, loadNote, canReadNote, getNoteById);
 router.route("/:noteId").patch(verifyJWT, loadNote, canEditNote, updateNote);
