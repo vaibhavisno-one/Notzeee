@@ -3,13 +3,14 @@ import mongoose, { Schema } from "mongoose";
 const noteSchema = new Schema({
     title: {
         type: String,
-        required: true,
-        trim: true
-
+        required: false,
+        trim: true,
+        default: "Untitled"
     },
     content: {
         type: String,
-        required: true,
+        required: false,
+        default: ""
     },
     owner: {
         type: Schema.Types.ObjectId,

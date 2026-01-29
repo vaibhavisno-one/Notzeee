@@ -23,13 +23,13 @@ const getAllUserNotes = asyncHandler(async (req, res) => {
 const createNote = asyncHandler(async (req, res) => {
     const { title, content } = req.body;
 
-    if (!title || !content) {
-        throw new ApiError(400, "Title and content are required");
-    }
+    // Allow empty values with defaults for better UX
+    const noteTitle = title?.trim() || "Untitled";
+    const noteContent = content || "";
 
     const note = await Note.create({
-        title,
-        content,
+        title: noteTitle,
+        content: noteContent,
         owner: req.user._id,
         collaborators: []
     });
