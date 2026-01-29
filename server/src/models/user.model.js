@@ -28,11 +28,6 @@ const userSchema = new Schema({
         required: true,
         trim: true,
     },
-    isStudent: {
-        type: Boolean,
-        default: true,
-        // required:true,
-    },
     password: {
         type: String,
         required: [true, "Password is required"],
@@ -58,7 +53,7 @@ userSchema.pre("save", async function (next) {
     if (!this.isModified("password")) return;
 
     this.password = await bcrypt.hash(this.password, 10)
-    next()
+    
 
 })
 
