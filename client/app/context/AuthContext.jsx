@@ -14,10 +14,21 @@ export function AuthProvider({ children }) {
         checkAuth();
     }, []);
 
-    const checkAuth = () => {
+    const checkAuth = async () => {
         const token = api.getToken();
         if (token) {
-            setIsAuthenticated(true);
+            try {
+                // Fetch current user from backend
+                const response = await api.getCurrentUser();
+                setUser(response.data);
+                setIsAuthenticated(true);
+            } catch (error) {
+                // Token invalid or expired
+                console.error("Auth check failed:", error);
+                api.clearTokens();
+                setUser(null);
+                setIsAuthenticated(false);
+            }
         } else {
             setIsAuthenticated(false);
         }

@@ -97,6 +97,10 @@ class ApiClient {
         }
     }
 
+    async getCurrentUser() {
+        return this.request("/users/me");
+    }
+
     // Notes endpoints
     async getAllNotes() {
         return this.request("/notes");

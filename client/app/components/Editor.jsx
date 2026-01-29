@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useNotes } from "../context/NotesContext";
+import { useAuth } from "../context/AuthContext";
 import MetadataPanel from "./MetadataPanel";
 import ContextToolbar from "./ContextToolbar";
 import FormattedPreview from "./FormattedPreview";
@@ -9,6 +10,7 @@ import { LINE_HEIGHT, TEXTAREA_MIN_HEIGHT, getFontClassName, getSelectionRange }
 
 export default function Editor({ noteId }) {
     const { notes, saveNote, isLoading, showMetadata, isFocusMode } = useNotes();
+    const { user: currentUser } = useAuth();
     const textareaRef = useRef(null);
 
     // Note content state
@@ -23,6 +25,17 @@ export default function Editor({ noteId }) {
 
     const note = notes.find((n) => n._id === noteId);
 
+    // Determine user's role on this note
+    const getUserRole = () => {
+        if (!note || !currentUser) return null;
+        if (note.owner._id === currentUser._id) return 'owner';
+        const collab = note.collaborators?.find(c => c.user._id === currentUser._id);
+        return collab?.role || null;
+    };
+
+    const userRole = getUserRole();
+    const canEdit = userRole === 'owner' || userRole === 'editor';
+
     // Load note content
     useEffect(() => {
         if (isLoading || !note) return;
@@ -32,12 +45,14 @@ export default function Editor({ noteId }) {
 
     // Event handlers
     const handleTitleChange = (e) => {
+        if (!canEdit) return;
         const newTitle = e.target.value;
         setTitle(newTitle);
         saveNote(noteId, newTitle, content);
     };
 
     const handleContentChange = (e) => {
+        if (!canEdit) return;
         const newContent = e.target.value;
         setContent(newContent);
         saveNote(noteId, title, newContent);
@@ -80,12 +95,21 @@ export default function Editor({ noteId }) {
         <div className={`flex-1 flex flex-col h-full relative ${getPageBackgroundClass(note.pageType)}`}>
             {showMetadata && <MetadataPanel note={note} />}
 
+            {/* Read-only banner for viewers */}
+            {userRole === 'viewer' && (
+                <div className="bg-amber-950/30 border-b border-amber-800/50 px-8 py-2 text-xs text-amber-400 font-medium flex items-center gap-2">
+                    <span>👁️</span>
+                    <span>You have view-only access to this note</span>
+                </div>
+            )}
+
             <div className="w-full mx-auto px-6 py-8 md:px-12 lg:px-16 flex flex-col gap-8 h-full max-w-7xl">
                 {/* Title */}
                 <TitleInput
                     value={title}
                     onChange={handleTitleChange}
                     isFocusMode={isFocusMode}
+                    disabled={!canEdit}
                 />
 
                 {/* Editor Area */}
@@ -103,25 +127,28 @@ export default function Editor({ noteId }) {
                         ref={textareaRef}
                         value={content}
                         onChange={handleContentChange}
-                        placeholder="Start writing..."
+                        placeholder={canEdit ? "Start writing..." : "Read-only"}
                         spellCheck={false}
                         style={getTextareaStyles(note.layout)}
                         className={getTextareaClasses(currentFont, isBold, isItalic)}
+                        disabled={!canEdit}
                     />
                 </div>
 
-                {/* Toolbar */}
-                <ContextToolbar
-                    textareaRef={textareaRef}
-                    onBoldToggle={() => setIsBold(!isBold)}
-                    onItalicToggle={() => setIsItalic(!isItalic)}
-                    onHighlightToggle={handleHighlightToggle}
-                    onFontChange={setCurrentFont}
-                    isBold={isBold}
-                    isItalic={isItalic}
-                    hasHighlights={highlightRanges.length > 0}
-                    currentFont={currentFont}
-                />
+                {/* Toolbar (hidden for viewers) */}
+                {canEdit && (
+                    <ContextToolbar
+                        textareaRef={textareaRef}
+                        onBoldToggle={() => setIsBold(!isBold)}
+                        onItalicToggle={() => setIsItalic(!isItalic)}
+                        onHighlightToggle={handleHighlightToggle}
+                        onFontChange={setCurrentFont}
+                        isBold={isBold}
+                        isItalic={isItalic}
+                        hasHighlights={highlightRanges.length > 0}
+                        currentFont={currentFont}
+                    />
+                )}
 
                 {/* Empty state */}
                 {!content && !title && <EmptyState isFocusMode={isFocusMode} />}
@@ -132,15 +159,15 @@ export default function Editor({ noteId }) {
 
 // Sub-components
 
-function TitleInput({ value, onChange, isFocusMode }) {
+function TitleInput({ value, onChange, isFocusMode, disabled }) {
     return (
         <input
             type="text"
             value={value}
             onChange={onChange}
             placeholder="Untitled Note"
-            className={`text-4xl font-editorial font-bold bg-transparent border-none focus:outline-none focus:ring-0 p-0 transition-all duration-500 placeholder:text-neutral-400 focus:placeholder:text-indigo-200 ${isFocusMode ? "text-neutral-200 text-center" : "text-neutral-50"
-                }`}
+            disabled={disabled}
+            className={`text-4xl font-editorial font-bold bg-transparent border-none focus:outline-none focus:ring-0 p-0 transition-all duration-500 placeholder:text-neutral-400 focus:placeholder:text-indigo-200 ${isFocusMode ? "text-neutral-200 text-center" : "text-neutral-50"} ${disabled ? "cursor-not-allowed opacity-75" : ""}`}
         />
     );
 }
