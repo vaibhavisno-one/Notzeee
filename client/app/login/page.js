@@ -32,7 +32,7 @@ export default function LoginPage() {
         const result = await login(formData);
 
         if (result.success) {
-            router.push("/app");
+            router.push("/");
         } else {
             setError(result.error || "Login failed");
         }
