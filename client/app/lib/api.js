@@ -5,6 +5,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 class ApiClient {
     constructor() {
         this.baseURL = API_BASE_URL;
+        this.isRedirecting = false;
     }
 
     getToken() {
@@ -67,7 +68,9 @@ class ApiClient {
                 // Handle 401 Unauthorized
                 if (response.status === 401) {
                     this.clearTokens();
-                    if (typeof window !== "undefined") {
+                    // Prevent multiple redirects
+                    if (typeof window !== "undefined" && !this.isRedirecting) {
+                        this.isRedirecting = true;
                         window.location.href = "/login";
                     }
                 }
