@@ -7,14 +7,28 @@ import cookieParser from "cookie-parser"
 
 const app = express()
 
-app.use(cors({
-  origin: process.env.CORS_ORIGIN,
-  credentials: true
-}))
+// Parse CORS_ORIGIN to support multiple origins (comma-separated)
+const allowedOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim())
+  : [];
 
-if (!process.env.CORS_ORIGIN) {
+if (allowedOrigins.length === 0) {
   throw new Error("CORS_ORIGIN is not defined");
 }
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error(`Origin ${origin} not allowed by CORS`));
+    }
+  },
+  credentials: true
+}))
 
 
 app.use(express.json({ limit: "16kb" }))
