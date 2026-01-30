@@ -6,46 +6,46 @@ import jwt from "jsonwebtoken"
 
 
 
-//token generation
-
-// const generateAccessAndRefreshToken = async (userId) => {
-//     try {
-//         const user = await User.findById(userId)
-
-//         const accessToken = user.generateAccessToken()
-//         const refreshToken = user.generateRefreshToken()
-
-//         user.refreshToken = refreshToken
-//         await user.save({ validateBeforeSave: false })
-
-//         return { accessToken, refreshToken }
-
-//     } catch (error) {
-//         throw new ApiError(500, "Something went wrong while generating access and refresh token")
-//     }
-// }
-
+// token generation
 
 const generateAccessAndRefreshToken = async (userId) => {
     try {
-        console.log("TOKEN GEN USER ID:", userId);
+        const user = await User.findById(userId)
 
-        const user = await User.findById(userId);
-        console.log("TOKEN GEN USER:", user);
+        const accessToken = user.generateAccessToken()
+        const refreshToken = user.generateRefreshToken()
 
-        const accessToken = user.generateAccessToken();
-        const refreshToken = user.generateRefreshToken();
+        user.refreshToken = refreshToken
+        await user.save({ validateBeforeSave: false })
 
-        user.refreshToken = refreshToken;
-        await user.save({ validateBeforeSave: false });
+        return { accessToken, refreshToken }
 
-        return { accessToken, refreshToken };
     } catch (error) {
-        console.error("REAL TOKEN ERROR 👇");
-        console.error(error);
-        throw error; // IMPORTANT: rethrow original error
+        throw new ApiError(500, "Something went wrong while generating access and refresh token")
     }
-};
+}
+
+
+// const generateAccessAndRefreshToken = async (userId) => {
+//     try {
+//         console.log("TOKEN GEN USER ID:", userId);
+
+//         const user = await User.findById(userId);
+//         console.log("TOKEN GEN USER:", user);
+
+//         const accessToken = user.generateAccessToken();
+//         const refreshToken = user.generateRefreshToken();
+
+//         user.refreshToken = refreshToken;
+//         await user.save({ validateBeforeSave: false });
+
+//         return { accessToken, refreshToken };
+//     } catch (error) {
+//         console.error("REAL TOKEN ERROR 👇");
+//         console.error(error);
+//         throw error; // IMPORTANT: rethrow original error
+//     }
+// };
 
 
 //register Logic

@@ -43,7 +43,25 @@ class ApiClient {
 
         try {
             const response = await fetch(`${this.baseURL}${endpoint}`, config);
-            const data = await response.json();
+
+            // ✅ SAFE: Check Content-Type before parsing
+            const contentType = response.headers.get("content-type");
+            let data;
+
+            if (contentType && contentType.includes("application/json")) {
+                // Safe to parse as JSON
+                data = await response.json();
+            } else {
+                // Handle HTML error pages or plain text
+                const text = await response.text();
+                data = {
+                    success: false,
+                    status: response.status,
+                    message: text.includes("<!DOCTYPE") || text.includes("<html")
+                        ? `Server error (${response.status})`
+                        : text || `Request failed with status ${response.status}`
+                };
+            }
 
             if (!response.ok) {
                 // Handle 401 Unauthorized
@@ -54,7 +72,9 @@ class ApiClient {
                     }
                 }
 
-                throw new ApiError(data.message || "Request failed", response.status, data);
+                // Normalize error format
+                const errorMessage = data.message || `Request failed with status ${response.status}`;
+                throw new ApiError(errorMessage, response.status, data);
             }
 
             return data;
@@ -62,7 +82,8 @@ class ApiClient {
             if (error instanceof ApiError) {
                 throw error;
             }
-            throw new ApiError(error.message || "Network error", 500);
+            // Network errors or other fetch failures
+            throw new ApiError(error.message || "Network error", 0);
         }
     }
 

@@ -107,7 +107,7 @@ const addCollaborator = asyncHandler(async (req, res) => {
     }
 
     if (req.note.owner._id.toString() === user._id.toString()) {
-        throw new ApiError(400, "Owner cannot be added as a collaborator");
+        throw new ApiError(400, "Owner cannot be added as a collaborator");  //check if collaborator is not owner
     }
 
     if (!["editor", "viewer"].includes(role)) {
