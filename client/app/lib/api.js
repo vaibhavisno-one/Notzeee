@@ -39,13 +39,12 @@ class ApiClient {
         const config = {
             ...options,
             headers,
-            credentials: "include", // Important for CORS with cookies
+            credentials: "include", 
         };
 
         try {
             const response = await fetch(`${this.baseURL}${endpoint}`, config);
 
-            // ✅ SAFE: Check Content-Type before parsing
             const contentType = response.headers.get("content-type");
             let data;
 

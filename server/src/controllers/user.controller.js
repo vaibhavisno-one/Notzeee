@@ -26,27 +26,6 @@ const generateAccessAndRefreshToken = async (userId) => {
 }
 
 
-// const generateAccessAndRefreshToken = async (userId) => {
-//     try {
-//         console.log("TOKEN GEN USER ID:", userId);
-
-//         const user = await User.findById(userId);
-//         console.log("TOKEN GEN USER:", user);
-
-//         const accessToken = user.generateAccessToken();
-//         const refreshToken = user.generateRefreshToken();
-
-//         user.refreshToken = refreshToken;
-//         await user.save({ validateBeforeSave: false });
-
-//         return { accessToken, refreshToken };
-//     } catch (error) {
-//         console.error("REAL TOKEN ERROR 👇");
-//         console.error(error);
-//         throw error; // IMPORTANT: rethrow original error
-//     }
-// };
-
 
 //register Logic
 const registerUser = asyncHandler(async (req, res) => {
