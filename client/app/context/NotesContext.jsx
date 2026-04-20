@@ -35,18 +35,24 @@ export function NotesProvider({ children }) {
         }
     };
 
-    const saveNote = async (id, newTitle, newContent) => {
+    const saveNote = async (id, updates) => {
         try {
+            const prevNote = notes.find((n) => n._id === id);
+            if (!prevNote) return;
+
+            const nextTitle = updates.title ?? prevNote.title;
+            const nextContent = updates.content ?? prevNote.content;
+
             // Optimistic update
             const updated = notes.map((n) =>
                 n._id === id
-                    ? { ...n, title: newTitle, content: newContent, updatedAt: new Date().toISOString() }
+                    ? { ...n, title: nextTitle, content: nextContent, updatedAt: new Date().toISOString() }
                     : n
             );
             setNotes(updated);
 
             // API call
-            await api.updateNote(id, { title: newTitle, content: newContent });
+            await api.updateNote(id, updates);
         } catch (err) {
             console.error("Failed to save note:", err);
             // Reload notes on error to sync state

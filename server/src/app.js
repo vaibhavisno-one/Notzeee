@@ -3,30 +3,15 @@
 import express from "express"
 import cors from "cors"
 import cookieParser from "cookie-parser"
+import { createCorsOriginValidator, getAllowedOrigins } from "./config/cors.js";
 
 
 const app = express()
 
-// Parse CORS_ORIGIN to support multiple origins (comma-separated)
-const allowedOrigins = process.env.CORS_ORIGIN
-  ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim())
-  : [];
-
-if (allowedOrigins.length === 0) {
-  throw new Error("CORS_ORIGIN is not defined");
-}
+const allowedOrigins = getAllowedOrigins();
 
 app.use(cors({
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error(`Origin ${origin} not allowed by CORS`));
-    }
-  },
+  origin: createCorsOriginValidator(allowedOrigins),
   credentials: true
 }))
 

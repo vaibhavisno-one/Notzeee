@@ -50,3 +50,41 @@ textarea::-moz-selection {
   background-color: rgba(99, 102, 241, 0.3);
   color: inherit;
 }
+
+.collab-editor-wrapper .ql-toolbar.ql-snow {
+  background-color: #262626;
+  border: 1px solid #404040;
+  border-radius: 0.5rem 0.5rem 0 0;
+}
+
+.collab-editor-wrapper .ql-container.ql-snow {
+  border: 1px solid #404040;
+  border-top: none;
+  min-height: 360px;
+  border-radius: 0 0 0.5rem 0.5rem;
+  background-color: transparent;
+}
+
+.collab-editor-wrapper .ql-editor {
+  color: #fafafa;
+  font-size: 1.05rem;
+  line-height: 1.75;
+  min-height: 360px;
+}
+
+.collab-editor-wrapper .ql-editor.ql-blank::before {
+  color: #737373;
+  font-style: normal;
+}
+
+.collab-editor-wrapper .ql-snow .ql-stroke {
+  stroke: #d4d4d4;
+}
+
+.collab-editor-wrapper .ql-snow .ql-fill {
+  fill: #d4d4d4;
+}
+
+.collab-editor-wrapper .ql-snow .ql-picker {
+  color: #d4d4d4;
+}

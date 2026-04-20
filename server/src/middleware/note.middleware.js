@@ -1,6 +1,7 @@
 import { Note } from "../models/note.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import { canEditNoteForUser, canReadNoteForUser, getUserRoleForNote } from "../utils/noteAccess.js";
 
 export const loadNote = asyncHandler(async (req, res, next) => {
     const { noteId } = req.params;
@@ -22,12 +23,7 @@ export const loadNote = asyncHandler(async (req, res, next) => {
 export const canReadNote = asyncHandler(async (req, res, next) => {
     const { note, user } = req;
 
-    const isOwner = note.owner._id.toString() === user._id.toString();
-    const isCollaborator = note.collaborators.some(
-        (collab) => collab.user._id.toString() === user._id.toString()
-    );
-
-    if (!isOwner && !isCollaborator) {
+    if (!canReadNoteForUser(note, user._id)) {
         throw new ApiError(403, "You do not have permission to read this note");
     }
 
@@ -37,21 +33,12 @@ export const canReadNote = asyncHandler(async (req, res, next) => {
 export const canEditNote = asyncHandler(async (req, res, next) => {
     const { note, user } = req;
 
-    const isOwner = note.owner._id.toString() === user._id.toString();
-
-    if (isOwner) {
-        return next();
-    }
-
-    const collaborator = note.collaborators.find(
-        (collab) => collab.user._id.toString() === user._id.toString()
-    );
-
-    if (!collaborator) {
+    const role = getUserRoleForNote(note, user._id);
+    if (!role) {
         throw new ApiError(403, "You do not have permission to edit this note");
     }
 
-    if (collaborator.role !== "editor") {
+    if (!canEditNoteForUser(note, user._id)) {
         throw new ApiError(403, "Only editors can modify this note");
     }
 
